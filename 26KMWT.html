@@ -1,0 +1,1092 @@
+<!doctype html>
+<html lang="zh-Hant">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <meta name="theme-color" content="#105C91">
+  <title>網路預約｜金豐租車 KmFun</title>
+  <style>
+    :root {
+      color-scheme: light;
+      --forest: #105C91;
+      --forest-2: #1677B8;
+      --mint: #EAF5FC;
+      --sand: #F5F9FC;
+      --ink: #293746;
+      --muted: #687785;
+      --line: #C8DFEF;
+      --orange: #E87516;
+      --white: #fff;
+      --shadow: 0 22px 60px rgb(12 40 57 / 32%);
+    }
+    * { box-sizing: border-box; }
+    body {
+      margin: 0;
+      background: #F5F9FC;
+      color: var(--ink);
+      font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", "Noto Sans TC", sans-serif;
+      line-height: 1.6;
+    }
+    button, input, select { font: inherit; }
+    button { cursor: pointer; }
+    .topbar {
+      background: var(--forest);
+      color: white;
+      padding: 17px 22px;
+    }
+    .topbar-inner {
+      max-width: 1080px;
+      margin: auto;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 14px;
+    }
+    .brand { display: flex; align-items: center; gap: 11px; font-weight: 800; letter-spacing: .04em; }
+    .brand-mark {
+      width: 36px; height: 36px; display: grid; place-items: center;
+      border: 1px solid rgba(255,255,255,.5); border-radius: 50%;
+      font-size: 17px;
+    }
+    .topbar a { color: white; text-decoration: none; font-size: 14px; }
+    main { max-width: 1080px; margin: 0 auto; padding: 62px 22px 76px; }
+    .intro { max-width: 700px; margin: 0 auto 42px; text-align: center; }
+    .eyebrow {
+      display: inline-flex; align-items: center; gap: 9px;
+      color: var(--forest-2); font-weight: 800; font-size: 12px;
+      letter-spacing: .16em; text-transform: uppercase;
+    }
+    .eyebrow::before, .eyebrow::after {
+      content: ""; width: 24px; height: 1px; background: #7fb3d2;
+    }
+    h1 { margin: 12px 0 10px; color: var(--forest); font-size: clamp(28px, 5vw, 42px); line-height: 1.25; }
+    .intro p { margin: 0; color: var(--muted); font-size: 16px; }
+    .booking-card {
+      max-width: 760px; margin: auto; padding: 30px;
+      background: white; border: 1px solid #e1e9f0; border-radius: 18px;
+      box-shadow: 0 12px 36px rgb(12 40 57 / 8%);
+    }
+    .booking-card-head { display: flex; align-items: flex-start; gap: 16px; }
+    .booking-icon {
+      flex: none; width: 48px; height: 48px; display: grid; place-items: center;
+      color: var(--forest); background: var(--mint); border-radius: 14px; font-size: 23px;
+    }
+    .booking-card h2 { margin: 0 0 3px; color: var(--forest); font-size: 21px; }
+    .booking-card p { margin: 0; color: var(--muted); }
+    .cta-row {
+      margin-top: 24px; display: flex; align-items: center; justify-content: space-between;
+      gap: 18px; padding-top: 22px; border-top: 1px solid #e8eef2;
+    }
+    .cta-hint { color: var(--muted); font-size: 13px; }
+    .primary, .secondary, .quiet {
+      border: 0; border-radius: 10px; font-weight: 800; transition: .18s ease;
+    }
+    .primary {
+      min-height: 50px; padding: 12px 21px; color: white; background: var(--forest);
+      box-shadow: 0 7px 16px rgb(22 119 184 / 20%);
+    }
+    .primary:hover { background: #105C91; transform: translateY(-1px); }
+    .primary:disabled { cursor: not-allowed; opacity: .45; transform: none; }
+    .secondary { min-height: 44px; padding: 10px 16px; color: var(--forest); background: var(--mint); }
+    .secondary:hover { background: #dceef9; }
+    .quiet { min-height: 42px; padding: 9px 15px; color: #586875; background: #eef4f8; }
+    .quiet:hover { background: #e1ebf1; }
+    .process-note {
+      display: flex; justify-content: center; flex-wrap: wrap; gap: 9px 20px;
+      margin-top: 25px; color: #687785; font-size: 12px;
+    }
+    .process-note span::before { content: "✓"; color: var(--forest-2); margin-right: 6px; font-weight: 900; }
+
+    .booking-dialog {
+      position: fixed; inset: 0; z-index: 1000; display: none;
+      align-items: center; justify-content: center; padding: 12px;
+      background: rgb(17 34 45 / 66%); color: var(--ink);
+    }
+    .booking-dialog.is-open { display: flex; }
+    #bookingDialog { z-index: 2147483000 !important; }
+    #bookingDialog.is-open { display: flex !important; }
+    .dialog-shell {
+      width: min(840px, 100%); max-height: min(92vh, 950px);
+      display: flex; flex-direction: column; overflow: hidden;
+      border-radius: 18px; background: white; box-shadow: var(--shadow);
+    }
+    #bookingDialog .dialog-shell { max-height: min(92vh, 950px); max-height: min(92dvh, 950px); }
+    body.booking-modal-open { overflow: hidden; }
+    .dialog-head {
+      display: flex; align-items: flex-start; justify-content: space-between; gap: 16px;
+      padding: 20px 25px 16px; border-bottom: 1px solid #e8eef2;
+    }
+    .dialog-head h2 { margin: 0; color: var(--forest); font-size: 21px; }
+    .dialog-head p { margin: 3px 0 0; color: var(--muted); font-size: 13px; }
+    .close {
+      width: 38px; height: 38px; flex: none; border: 0; border-radius: 50%;
+      background: #eef4f8; color: #344651; font-size: 20px;
+    }
+    .dialog-body { overflow: auto; padding: 20px 25px 25px; }
+    #bookingDialog .dialog-head { flex: 0 0 auto; }
+    #bookingDialog .dialog-body { min-height: 0; overscroll-behavior: contain; }
+    .progress {
+      display: grid; grid-template-columns: repeat(5, 1fr); gap: 8px;
+      margin: 0 0 24px; padding: 0; list-style: none;
+    }
+    .progress li {
+      position: relative; padding-top: 27px; text-align: center;
+      color: #81909b; font-size: 12px; font-weight: 700;
+    }
+    .progress li::before {
+      content: attr(data-number); position: absolute; top: 0; left: 50%; transform: translateX(-50%);
+      width: 21px; height: 21px; display: grid; place-items: center;
+      border: 1px solid #c9d7e0; border-radius: 50%; background: white; color: #687785;
+      font-size: 11px;
+    }
+    .progress li::after {
+      content: ""; position: absolute; top: 10px; left: calc(50% + 15px); width: calc(100% - 30px);
+      height: 1px; background: #d9e3e9;
+    }
+    .progress li:last-child::after { display: none; }
+    .progress li.active { color: var(--forest); }
+    .progress li.active::before, .progress li.done::before {
+      border-color: var(--forest); background: var(--forest); color: white;
+    }
+    .progress li.done::before { content: "✓"; }
+    .progress li.done::after { background: var(--forest-2); }
+    .panel[hidden] { display: none; }
+    .panel-title { margin: 0 0 14px; color: var(--forest); font-size: 19px; }
+    .field-group { margin: 0 0 21px; }
+    .field-label { display: block; margin-bottom: 8px; font-weight: 800; font-size: 14px; }
+    .required { margin-left: 4px; color: #bb523b; }
+    .helper { margin: 6px 0 0; color: var(--muted); font-size: 12px; }
+    .duration-options { display: grid; grid-template-columns: 1fr 1fr; gap: 11px; }
+    .choice {
+      position: relative; display: flex; align-items: center; gap: 11px;
+      min-height: 62px; padding: 13px 15px; border: 1px solid var(--line);
+      border-radius: 11px; background: white; cursor: pointer;
+    }
+    .choice:has(input:checked) { border: 2px solid var(--forest-2); padding: 12px 14px; background: #f3f9fd; }
+    .choice input { accent-color: var(--forest-2); width: 17px; height: 17px; }
+    .choice strong { display: block; color: var(--ink); font-size: 15px; }
+    .choice small { display: block; color: var(--muted); font-size: 12px; }
+    .calendar-box {
+      border: 1px solid var(--line); border-radius: 13px; padding: 14px;
+      background: #fff;
+    }
+    .calendar-head { display: flex; justify-content: space-between; align-items: center; margin-bottom: 12px; }
+    .calendar-head strong { color: var(--forest); font-size: 15px; }
+    .month-nav { display: flex; gap: 6px; }
+    .month-nav button {
+      width: 32px; height: 32px; border: 1px solid var(--line); border-radius: 8px;
+      background: white; color: var(--forest); font-size: 18px; line-height: 1;
+    }
+    .month-nav button:disabled { opacity: .3; cursor: default; }
+    .calendar-grid { display: grid; grid-template-columns: repeat(7, 1fr); gap: 4px; text-align: center; }
+    .weekday { padding: 4px 0; color: #748491; font-size: 11px; font-weight: 800; }
+    .day {
+      aspect-ratio: 1; min-height: 37px; padding: 3px 0;
+      border: 1px solid transparent; border-radius: 9px; background: white; color: var(--ink);
+      font-size: 13px;
+    }
+    .day:hover:not(:disabled) { border-color: #78afd0; background: #f2f8fc; }
+    .day:disabled { cursor: not-allowed; color: #c0c9ce; background: #f4f6f7; text-decoration: line-through; }
+    .day.selected { border-color: var(--forest); background: var(--forest); color: white; font-weight: 800; }
+    .calendar-legend { display: flex; flex-wrap: wrap; gap: 8px 16px; margin-top: 10px; color: #687785; font-size: 11px; }
+    .calendar-legend b { color: var(--orange); }
+    .date-result {
+      display: flex; align-items: center; justify-content: space-between; gap: 10px;
+      margin-top: 12px; padding: 11px 13px; border-radius: 9px; background: var(--mint);
+      color: var(--forest); font-size: 13px; font-weight: 800;
+    }
+    .date-result.empty { color: #74818a; background: #f4f6f7; font-weight: 600; }
+    .vehicle-grid { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 10px; }
+    .vehicle-card {
+      display: block; width: 100%; min-height: 114px; padding: 14px 15px; text-align: left;
+      border: 1px solid var(--line); border-radius: 12px; background: white; color: var(--ink);
+    }
+    .vehicle-card:hover { border-color: #78afd0; background: #fafcf9; }
+    .vehicle-card.selected { border: 2px solid var(--forest-2); padding: 13px 14px; background: #f3f9fd; }
+    .vehicle-top { display: flex; align-items: center; justify-content: space-between; gap: 8px; }
+    .vehicle-name { color: var(--forest); font-weight: 900; }
+    .vehicle-check { width: 17px; height: 17px; border: 1px solid #bdcbd4; border-radius: 50%; }
+    .vehicle-card.selected .vehicle-check { border: 5px solid var(--forest-2); }
+    .vehicle-price { margin-top: 7px; font-size: 16px; font-weight: 900; }
+    .vehicle-rate { margin-top: 1px; color: var(--muted); font-size: 11px; }
+    .location-options { display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 8px; }
+    .location-options label, .shuttle-options label {
+      display: flex; align-items: center; gap: 8px; min-height: 43px; margin: 0;
+      padding: 9px 11px; border: 1px solid var(--line); border-radius: 9px;
+      background: white; color: var(--ink); font-size: 13px; cursor: pointer;
+    }
+    .location-options label:has(input:checked) { border: 2px solid var(--forest-2); padding: 8px 10px; background: #f3f9fd; color: var(--forest); font-weight: 800; }
+    .location-options input, .shuttle-options input { width: 16px; height: 16px; flex: none; accent-color: var(--forest-2); }
+    .pickup-note { margin-top: 8px; color: var(--forest); }
+    .shuttle-options { display: grid; gap: 8px; margin-top: 10px; }
+    .shuttle-options[hidden] { display: none; }
+    .shuttle-options label { border-color: #ead8c5; background: #fffaf4; }
+    .quantity-row { display: grid; grid-template-columns: 1fr 1fr; gap: 12px; }
+    .stepper {
+      display: flex; align-items: center; justify-content: space-between; height: 46px;
+      border: 1px solid var(--line); border-radius: 10px; padding: 4px;
+    }
+    .stepper button {
+      width: 36px; height: 36px; border: 0; border-radius: 8px;
+      color: var(--forest); background: #eaf5fc; font-size: 20px;
+    }
+    .stepper button:disabled { color: #bbc4c9; background: #f4f6f7; cursor: not-allowed; }
+    .stepper output { min-width: 44px; text-align: center; font-weight: 900; }
+    .select-control, .input-control {
+      width: 100%; min-height: 46px; padding: 10px 12px; border: 1px solid var(--line);
+      border-radius: 9px; background: white; color: var(--ink); outline: none;
+    }
+    .input-control:focus, .select-control:focus { border-color: var(--forest-2); box-shadow: 0 0 0 3px rgb(22 119 184 / 12%); }
+    .price-box {
+      margin: 23px 0 14px; padding: 18px; border-radius: 13px;
+      border: 1px solid #c8dfef; background: #f3f9fd;
+    }
+    .price-heading { display: flex; align-items: baseline; justify-content: space-between; gap: 10px; }
+    .price-heading strong { color: var(--forest); font-size: 15px; }
+    .price-heading small { color: var(--muted); font-size: 11px; }
+    .price-lines { margin: 11px 0 0; padding: 0; list-style: none; }
+    .price-lines li { display: flex; justify-content: space-between; gap: 14px; padding: 4px 0; color: #586875; font-size: 13px; }
+    .price-lines .discount { color: #b45437; }
+    .price-total {
+      display: flex; align-items: baseline; justify-content: space-between; gap: 12px;
+      margin-top: 10px; padding-top: 12px; border-top: 1px solid #d4e3ed;
+    }
+    .price-total span { color: var(--forest); font-weight: 800; }
+    .price-total strong { color: #c2543a; font-size: 25px; }
+    .panel-actions { display: flex; justify-content: space-between; gap: 10px; margin-top: 21px; }
+    .panel-actions .primary { min-width: 200px; }
+    .input-stack { display: grid; gap: 14px; }
+    .contact-note, .notice-box, .privacy-note, .line-note {
+      padding: 13px 15px; border-radius: 10px; font-size: 13px;
+    }
+    .contact-note { margin-top: 17px; background: #f3f7fa; color: #5f6f7a; }
+    .notice-box { border: 1px solid #f0dec9; background: #fff9f1; color: #665645; }
+    .notice-box h3 { margin: 0 0 6px; color: #875930; font-size: 14px; }
+    .notice-box p { margin: 0; }
+    .payment-note { margin-top: 14px; }
+    .payment-status { min-height: 1.5em; margin: 13px 0 0; color: var(--muted); font-size: 13px; }
+    .payment-status[data-state="error"] { color: #b45437; }
+    .payment-status[data-state="success"] { color: #105C91; font-weight: 800; }
+    .agree-row {
+      display: flex; align-items: flex-start; gap: 9px; margin: 16px 0 0;
+      color: #43515d; font-size: 13px;
+    }
+    .agree-row input { margin-top: 4px; accent-color: var(--forest-2); }
+    .review-list { margin: 0; padding: 0; border-top: 1px solid #e8eef2; list-style: none; }
+    .review-list li {
+      display: grid; grid-template-columns: 128px 1fr; gap: 12px;
+      padding: 10px 0; border-bottom: 1px solid #e8eef2; font-size: 14px;
+    }
+    .review-list .key { color: #71808a; }
+    .review-list .value { color: var(--ink); font-weight: 700; overflow-wrap: anywhere; }
+    .review-total { margin-top: 16px; padding: 15px 17px; border-radius: 12px; background: var(--mint); }
+    .review-total div { display: flex; justify-content: space-between; align-items: baseline; gap: 12px; }
+    .review-total strong { color: #c2543a; font-size: 24px; }
+    .privacy-note { margin: 15px 0 0; background: #f3f7fa; color: #687785; }
+    .line-note { margin: 0 0 12px; background: #f3f9fd; color: var(--forest); }
+    .line-qr-wrap { display: flex; flex-direction: column; align-items: center; justify-content: center; margin: 12px 0; padding: 14px; border: 1px solid var(--line); border-radius: 10px; background: #f8fbfd; }
+    #lineQr { min-width: 220px; min-height: 220px; display: grid; place-items: center; background: white; }
+    #lineQr img, #lineQr canvas { display: block; max-width: 100%; height: auto; }
+    #lineQrFallback { max-width: 420px; margin: auto; color: #8a4f35; text-align: center; font-size: 13px; }
+    .line-message {
+      width: 100%; min-height: 180px; padding: 13px; border: 1px solid var(--line);
+      border-radius: 10px; background: #fafcfd; color: #43515d; font-size: 13px; line-height: 1.65;
+      resize: vertical;
+    }
+    .line-actions { display: flex; flex-wrap: wrap; gap: 10px; margin-top: 13px; }
+    .line-link { display: inline-flex; align-items: center; text-decoration: none; }
+    .dialog-foot { padding: 12px 25px; border-top: 1px solid #e8eef2; color: #82909a; font-size: 11px; text-align: center; }
+    .sr-only { position: absolute; width: 1px; height: 1px; padding: 0; margin: -1px; overflow: hidden; clip: rect(0,0,0,0); white-space: nowrap; border: 0; }
+    @media (max-width: 620px) {
+      main { padding: 43px 15px 55px; }
+      .booking-card { padding: 22px 18px; }
+      .booking-card-head { gap: 12px; }
+      .booking-card h2 { font-size: 18px; }
+      .cta-row { align-items: stretch; flex-direction: column; gap: 13px; }
+      .cta-row .primary { width: 100%; }
+      .booking-dialog { padding: max(8px, env(safe-area-inset-top)) 6px max(8px, env(safe-area-inset-bottom)); }
+      .dialog-shell { max-height: calc(94vh - 16px); max-height: calc(94dvh - 16px); border-radius: 12px; }
+      .dialog-head { padding: 16px 17px 13px; }
+      .dialog-body { padding: 17px 16px 20px; }
+      .dialog-foot { padding: 10px 16px; }
+      .progress { gap: 2px; margin-bottom: 20px; }
+      .progress li { font-size: 10px; }
+      .progress li::after { left: calc(50% + 12px); width: calc(100% - 24px); }
+      .duration-options, .vehicle-grid { grid-template-columns: 1fr 1fr; gap: 8px; }
+      .location-options { grid-template-columns: 1fr; }
+      .vehicle-card { min-height: 108px; padding: 11px; }
+      .vehicle-card.selected { padding: 10px; }
+      .quantity-row { gap: 9px; }
+      .panel-actions .primary { min-width: 0; flex: 1; }
+      .panel-actions .quiet { flex: none; }
+      .review-list li { grid-template-columns: 94px 1fr; font-size: 13px; }
+    }
+    @media (max-width: 390px) {
+      .weekday { font-size: 10px; }
+      .day { min-height: 33px; font-size: 12px; }
+      .vehicle-price { font-size: 14px; }
+      .progress li { font-size: 9px; }
+    }
+  </style>
+</head>
+<body>
+  <header class="topbar">
+    <div class="topbar-inner">
+      <div class="brand"><span class="brand-mark" aria-hidden="true">K</span><span>KmFun 金豐租車</span></div>
+      <a href="https://line.me/R/ti/p/%40kmfun" target="_blank" rel="noopener">LINE 官方帳號</a>
+    </div>
+  </header>
+  <main>
+    <div class="intro">
+      <div class="eyebrow">ONLINE RESERVATION</div>
+      <h1>冬遊金門超值方案</h1>
+      <p>挑選行程、車款與數量，確認優惠價格後即可送出預約資料。</p>
+    </div>
+    <section class="booking-card" aria-labelledby="booking-title">
+      <div class="booking-card-head">
+        <div class="booking-icon" aria-hidden="true">↗</div>
+        <div>
+          <h2 id="booking-title">網路預約</h2>
+          <p>填寫用車資料與聯絡方式，預約內容會整理成 LINE 訊息。</p>
+        </div>
+      </div>
+      <div class="cta-row">
+        <div class="cta-hint">活動用車期間：2026/11/01–2027/03/31</div>
+        <button class="primary" id="openBooking" type="button">開始網路預約 <span aria-hidden="true">→</span></button>
+      </div>
+      <div class="process-note" aria-label="預約流程">
+        <span>選行程與車款</span><span>填資料與注意事項</span><span>信用卡付款</span><span>確認後前往 LINE</span>
+      </div>
+    </section>
+  </main>
+
+  <div class="booking-dialog" id="bookingDialog" role="dialog" aria-modal="true" aria-labelledby="dialog-title" aria-hidden="true">
+    <div class="dialog-shell">
+      <div class="dialog-head">
+        <div>
+          <h2 id="dialog-title">優惠方案預約</h2>
+          <p>完成信用卡付款後，確認預約資料並送至金豐 LINE。</p>
+        </div>
+        <button class="close" id="closeBooking" type="button" aria-label="關閉預約表單">×</button>
+      </div>
+      <div class="dialog-body">
+        <ol class="progress" id="progress">
+          <li data-number="1" data-step="0">選擇行程</li>
+          <li data-number="2" data-step="1">聯絡資訊</li>
+          <li data-number="3" data-step="2">注意事項</li>
+          <li data-number="4" data-step="3">信用卡付款</li>
+          <li data-number="5" data-step="4">確認資料</li>
+        </ol>
+
+        <section class="panel" id="selectionPanel" aria-labelledby="selection-title">
+          <h3 class="panel-title" id="selection-title">選擇用車方案</h3>
+          <div class="field-group">
+            <span class="field-label">1. 用車天數</span>
+            <div class="duration-options" role="group" aria-label="用車天數">
+              <label class="choice"><input type="radio" name="duration" value="3" checked>
+                <span><strong>3 天 2 夜</strong><small>優惠專案</small></span></label>
+              <label class="choice"><input type="radio" name="duration" value="4">
+                <span><strong>4 天 3 夜</strong><small>優惠專案</small></span></label>
+            </div>
+          </div>
+          <div class="field-group">
+            <span class="field-label">2. 起租日期</span>
+            <div class="calendar-box">
+              <div class="calendar-head">
+                <strong id="calendarMonth"></strong>
+                <div class="month-nav">
+                  <button id="previousMonth" type="button" aria-label="上一個月">‹</button>
+                  <button id="nextMonth" type="button" aria-label="下一個月">›</button>
+                </div>
+              </div>
+              <div class="calendar-grid" id="calendarGrid" role="grid" aria-label="選擇起租日期"></div>
+              <div class="calendar-legend"><span>灰色日期為不可選期間</span><span><b>平日</b>：週日至週四</span></div>
+              <div class="date-result empty" id="dateResult" aria-live="polite">請選擇起租日期</div>
+            </div>
+            <p class="helper">活動期間 2026/11/01–2027/03/31，且起租日最早為後天；行程與排除日期重疊時，起租日不提供選擇。</p>
+          </div>
+          <div class="field-group">
+            <span class="field-label">3. 選擇取車地點</span>
+            <div class="location-options" role="radiogroup" aria-label="選擇取車地點">
+              <label><input type="radio" name="pickupLocation" value="jincheng"><span>金城總店</span></label>
+              <label><input type="radio" name="pickupLocation" value="airport"><span>尚義機場</span></label>
+              <label><input type="radio" name="pickupLocation" value="jinhu"><span>金湖店</span></label>
+            </div>
+            <p class="helper pickup-note">水頭碼頭接送請選擇金城總店，接駁費用按人數另計。</p>
+            <div class="shuttle-options" id="shuttleOptions" hidden>
+              <label><input type="checkbox" id="pickupShuttle"><span>取車需要碼頭接送</span></label>
+            </div>
+          </div>
+          <div class="field-group">
+            <span class="field-label">4. 車款與方案</span>
+            <div class="vehicle-grid" id="vehicleGrid"></div>
+            <p class="helper">價格為整個行程的優惠價；汽車於週日至週四出發再折 NT$200。</p>
+          </div>
+          <div class="quantity-row">
+            <div class="field-group">
+              <label class="field-label" for="quantity">5. 訂購數量</label>
+              <div class="stepper">
+                <button id="minusQuantity" type="button" aria-label="減少車輛數">−</button>
+                <output id="quantity" aria-live="polite">1</output>
+                <button id="plusQuantity" type="button" aria-label="增加車輛數">+</button>
+              </div>
+              <p class="helper" id="quantityHint">機車 1–4 台；汽車 1 台</p>
+            </div>
+            <div class="field-group">
+              <label class="field-label" for="people">同行人數</label>
+              <select class="select-control" id="people">
+                <option value="">請選擇</option>
+                <option value="1">1 人</option><option value="2">2 人</option>
+                <option value="3">3 人</option><option value="4">4 人</option>
+                <option value="5">5 人</option><option value="6">6 人</option>
+                <option value="7">7 人</option><option value="8">8 人</option>
+              </select>
+              <p class="helper">請選擇 1–8 人</p>
+            </div>
+          </div>
+          <div class="price-box" aria-live="polite">
+            <div class="price-heading"><strong>優惠價格結算</strong><small id="pricePlan">選擇車款後試算</small></div>
+            <ul class="price-lines" id="priceLines"></ul>
+            <div class="price-total"><span>優惠總額</span><strong id="totalPrice">NT$ —</strong></div>
+          </div>
+          <div class="panel-actions">
+            <span></span>
+            <button class="primary" id="toContact" type="button">下一步：填寫聯絡資料</button>
+          </div>
+        </section>
+
+        <section class="panel" id="contactPanel" hidden aria-labelledby="contact-title">
+          <h3 class="panel-title" id="contact-title">Step 1｜聯絡資訊</h3>
+          <div class="input-stack">
+            <div><label class="field-label" for="customerName">姓名<span class="required">*</span></label>
+              <input class="input-control" id="customerName" type="text" autocomplete="name" maxlength="60" placeholder="請輸入姓名" required></div>
+            <div><label class="field-label" for="customerPhone">聯絡電話<span class="required">*</span></label>
+              <input class="input-control" id="customerPhone" type="tel" inputmode="tel" autocomplete="tel"
+                pattern="09[0-9]{8}" maxlength="10" placeholder="09xxxxxxxx" required>
+              <p class="helper">請填寫 09 開頭的 10 位手機號碼。</p></div>
+            <div><label class="field-label" for="customerEmail">Email（選填）</label>
+              <input class="input-control" id="customerEmail" type="email" autocomplete="email" maxlength="120" placeholder="example@mail.com"></div>
+          </div>
+          <div class="contact-note">姓名、手機為必填，Email 為選填。</div>
+          <div class="panel-actions">
+            <button class="quiet" type="button" data-back="0">返回修改方案</button>
+            <button class="primary" id="toTerms" type="button">下一步：注意事項</button>
+          </div>
+        </section>
+
+        <section class="panel" id="termsPanel" hidden aria-labelledby="terms-title">
+          <h3 class="panel-title" id="terms-title">Step 2｜注意事項</h3>
+          <div class="notice-box">
+            <h3>活動注意事項</h3>
+            <p>若預約本方案後遇車輛已滿情形將會全額退款給您；特殊方案提前還車恕無法退還款項，進行付款後即代表您同意此條款。</p>
+          </div>
+          <label class="agree-row"><input id="agreeTerms" type="checkbox">
+            <span>我已確認本次預約資料，並同意依頁面公告之活動注意事項辦理。</span></label>
+          <div class="panel-actions">
+            <button class="quiet" type="button" data-back="1">上一步</button>
+            <button class="primary" id="toPayment" type="button">下一步：信用卡付款</button>
+          </div>
+        </section>
+
+        <section class="panel" id="paymentPanel" hidden aria-labelledby="payment-title">
+          <h3 class="panel-title" id="payment-title">Step 3｜綠界信用卡付款</h3>
+          <div class="review-total"><div><span>本次應付金額</span><strong id="paymentAmount">NT$ —</strong></div></div>
+          <div class="notice-box payment-note">
+            <h3>安全付款說明</h3>
+            <p>按下付款後將前往綠界信用卡頁面。付款成功需由伺服器驗證後，才會顯示確認資料與 LINE 傳送按鈕。</p>
+          </div>
+          <p class="payment-status" id="paymentStatus" role="status" aria-live="polite">請確認金額後前往綠界付款。</p>
+          <div class="panel-actions">
+            <button class="quiet" type="button" data-back="2">返回注意事項</button>
+            <button class="primary" id="payNow" type="button">前往綠界信用卡付款</button>
+          </div>
+        </section>
+
+        <section class="panel" id="reviewPanel" hidden aria-labelledby="review-title">
+          <h3 class="panel-title" id="review-title">Step 4｜付款完成・確認預約資料</h3>
+          <ul class="review-list" id="reviewList"></ul>
+          <div class="review-total"><div><span>優惠總額</span><strong id="reviewPrice"></strong></div></div>
+          <p class="privacy-note">按下前往 LINE 後，手機會開啟金豐官方帳號並預填預約訊息；資料需由您在 LINE 內按「傳送」後才會送出。</p>
+          <div class="panel-actions">
+            <button class="quiet" type="button" data-back="3">返回付款資訊</button>
+            <button class="primary" id="sendLine" type="button">前往 LINE 預約</button>
+          </div>
+        </section>
+
+        <section class="panel" id="linePanel" hidden aria-labelledby="line-title">
+          <h3 class="panel-title" id="line-title">預約資料已備妥</h3>
+          <div class="line-note">請用手機掃描 QR Code，開啟已預填預約資料的 LINE 對話，並按「傳送」。QR Code 含本次聯絡資料，請由本人掃描，勿公開分享。</div>
+          <div class="line-qr-wrap">
+            <div id="lineQr" aria-label="預填 LINE 預約訊息 QR Code"></div>
+            <p id="lineQrFallback" hidden>QR Code 暫時無法產生，請複製下方內容，貼到金豐 LINE 官方帳號對話中傳送。</p>
+          </div>
+          <label class="sr-only" for="lineMessage">預約訊息內容</label>
+          <textarea class="line-message" id="lineMessage" readonly></textarea>
+          <div class="line-actions">
+            <button class="primary" id="copyMessage" type="button">複製預約內容</button>
+            <a class="secondary line-link" href="https://line.me/R/ti/p/%40kmfun" target="_blank" rel="noopener">開啟金豐 LINE 官方帳號</a>
+          </div>
+          <div class="panel-actions">
+            <button class="quiet" type="button" data-back="4">返回確認資料</button>
+            <button class="quiet" id="finishBooking" type="button">完成</button>
+          </div>
+        </section>
+      </div>
+      <div class="dialog-foot">金豐租車 KmFun｜網路預約資料將在您確認後帶入 LINE 訊息。</div>
+    </div>
+  </div>
+
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/qrcodejs/1.0.0/qrcode.min.js" integrity="sha512-CNgIRecGo7nphbeZ04Sc13ka07paqdeTu0WR1IM4kNcpmBAUSHSQX0FslNhTDadL4O5SAGapGt4FodqL8My0mA==" crossorigin="anonymous" referrerpolicy="no-referrer"></script>
+  <script>
+    (function () {
+      function initBooking() {
+      const START = "2026-11-01";
+      const LAST = "2027-03-31";
+      const blocked = [
+        ["2026-12-25", "2026-12-27"],
+        ["2027-01-01", "2027-01-03"],
+        ["2027-01-16", "2027-01-17"],
+        ["2027-02-03", "2027-02-10"],
+        ["2027-02-27", "2027-03-01"],
+        ["2027-03-26", "2027-03-31"]
+      ];
+      const vehicleData = {
+        scooter: { name: "125 機車", daily: 450, p3: 700, p4: 900, max: 4, icon: "◌" },
+        five: { name: "五人座汽車", daily: 1800, p3: 2880, p4: 3600, max: 1, icon: "▰" },
+        seven: { name: "七人座汽車", daily: 2500, p3: 4000, p4: 5000, max: 1, icon: "▰" },
+        eight: { name: "八人座汽車", daily: 2800, p3: 4480, p4: 5600, max: 1, icon: "▰" }
+      };
+      const weekdays = ["週日", "週一", "週二", "週三", "週四", "週五", "週六"];
+      const dialog = document.getElementById("bookingDialog");
+      if (dialog && dialog.parentNode !== document.body) document.body.appendChild(dialog);
+      const panels = [
+        document.getElementById("selectionPanel"),
+        document.getElementById("contactPanel"),
+        document.getElementById("termsPanel"),
+        document.getElementById("paymentPanel"),
+        document.getElementById("reviewPanel"),
+        document.getElementById("linePanel")
+      ];
+      let duration = 3;
+      let selectedStart = "";
+      let selectedLocation = "";
+      let selectedVehicle = "";
+      let quantity = 1;
+      let activeMonth = new Date(2026, 10, 1);
+      let currentStage = 0;
+      let currentTotal = 0;
+      let currentMessage = "";
+      let paidBooking = null;
+      let paymentBusy = false;
+      const paymentApi = document.documentElement.getAttribute("data-payment-api") || "/kmfun-payment";
+
+      function localDate(iso) {
+        const parts = iso.split("-").map(Number);
+        return new Date(parts[0], parts[1] - 1, parts[2]);
+      }
+      function isoDate(date) {
+        return date.getFullYear() + "-" + String(date.getMonth() + 1).padStart(2, "0") + "-" + String(date.getDate()).padStart(2, "0");
+      }
+      function addDays(date, count) {
+        const result = new Date(date.getFullYear(), date.getMonth(), date.getDate());
+        result.setDate(result.getDate() + count);
+        return result;
+      }
+      function formatDate(date, withWeekday) {
+        const base = date.getFullYear() + "/" + String(date.getMonth() + 1).padStart(2, "0") + "/" + String(date.getDate()).padStart(2, "0");
+        return withWeekday ? base + "（" + weekdays[date.getDay()] + "）" : base;
+      }
+      function money(amount) { return "NT$ " + Number(amount).toLocaleString("zh-TW"); }
+      function isInBlockedPeriod(date) {
+        const key = isoDate(date);
+        return blocked.some(function (range) { return key >= range[0] && key <= range[1]; });
+      }
+      function isAllowedStart(date, days) {
+        const start = isoDate(date);
+        const earliestStart = isoDate(addDays(new Date(), 2));
+        if (start < earliestStart) return false;
+        if (start < START || start > LAST) return false;
+        const lastUseDay = addDays(date, days - 1);
+        if (isoDate(lastUseDay) > LAST) return false;
+        for (let i = 0; i < days; i++) if (isInBlockedPeriod(addDays(date, i))) return false;
+        return true;
+      }
+      function isWeekdayStart() {
+        return selectedStart && localDate(selectedStart).getDay() >= 0 && localDate(selectedStart).getDay() <= 4;
+      }
+      function selectedPromo() {
+        const item = vehicleData[selectedVehicle];
+        return item ? (duration === 3 ? item.p3 : item.p4) : 0;
+      }
+      function setStage(stage) {
+        currentStage = stage;
+        panels.forEach(function (panel, index) { panel.hidden = index !== stage; });
+        document.querySelectorAll("#progress li").forEach(function (item) {
+          const n = Number(item.getAttribute("data-step"));
+          const progressStage = Math.min(stage, 4);
+          item.classList.toggle("active", n === progressStage);
+          item.classList.toggle("done", n < progressStage);
+        });
+        const body = document.querySelector(".dialog-body");
+        if (body) body.scrollTop = 0;
+      }
+      function closeBookingDialog() {
+        dialog.classList.remove("is-open");
+        dialog.setAttribute("aria-hidden", "true");
+        document.body.classList.remove("booking-modal-open");
+        document.getElementById("openBooking").focus();
+      }
+      function renderCalendar() {
+        const y = activeMonth.getFullYear();
+        const m = activeMonth.getMonth();
+        document.getElementById("calendarMonth").textContent = y + " 年 " + (m + 1) + " 月";
+        document.getElementById("previousMonth").disabled = (y === 2026 && m === 10);
+        document.getElementById("nextMonth").disabled = (y === 2027 && m === 2);
+        const grid = document.getElementById("calendarGrid");
+        grid.replaceChildren();
+        ["日", "一", "二", "三", "四", "五", "六"].forEach(function (label) {
+          const el = document.createElement("div");
+          el.className = "weekday";
+          el.setAttribute("role", "columnheader");
+          el.textContent = label;
+          grid.appendChild(el);
+        });
+        const first = new Date(y, m, 1);
+        const days = new Date(y, m + 1, 0).getDate();
+        for (let i = 0; i < first.getDay(); i++) {
+          const blank = document.createElement("span");
+          blank.setAttribute("aria-hidden", "true");
+          grid.appendChild(blank);
+        }
+        for (let day = 1; day <= days; day++) {
+          const date = new Date(y, m, day);
+          const button = document.createElement("button");
+          const iso = isoDate(date);
+          const allowed = isAllowedStart(date, duration);
+          button.type = "button";
+          button.className = "day" + (iso === selectedStart ? " selected" : "");
+          button.textContent = String(day);
+          button.disabled = !allowed;
+          button.setAttribute("role", "gridcell");
+          button.setAttribute("aria-label", formatDate(date, true) + (allowed ? "" : "，不可選"));
+          if (allowed) button.addEventListener("click", function () {
+            selectedStart = iso;
+            renderCalendar();
+            renderDateResult();
+            renderPrice();
+          });
+          grid.appendChild(button);
+        }
+        renderDateResult();
+      }
+      function renderDateResult() {
+        const box = document.getElementById("dateResult");
+        if (!selectedStart) {
+          box.classList.add("empty");
+          box.textContent = "請選擇起租日期";
+          return;
+        }
+        const start = localDate(selectedStart);
+        const last = addDays(start, duration - 1);
+        box.classList.remove("empty");
+        box.textContent = formatDate(start, true) + " – " + formatDate(last, true) + "｜" + duration + " 天 " + (duration - 1) + " 夜";
+      }
+      function renderVehicles() {
+        const grid = document.getElementById("vehicleGrid");
+        grid.replaceChildren();
+        Object.keys(vehicleData).forEach(function (key) {
+          const item = vehicleData[key];
+          const button = document.createElement("button");
+          button.type = "button";
+          button.className = "vehicle-card" + (selectedVehicle === key ? " selected" : "");
+          button.setAttribute("aria-pressed", selectedVehicle === key ? "true" : "false");
+          const amount = duration === 3 ? item.p3 : item.p4;
+          button.innerHTML =
+            '<span class="vehicle-top"><span class="vehicle-name">' + item.icon + " " + item.name + '</span><span class="vehicle-check" aria-hidden="true"></span></span>' +
+            '<span class="vehicle-price">' + money(amount) + '</span>' +
+            '<span class="vehicle-rate">定價 ' + money(item.daily) + "／日 · " + duration + " 天 " + (duration - 1) + " 夜</span>";
+          button.addEventListener("click", function () {
+            selectedVehicle = key;
+            quantity = 1;
+            renderVehicles();
+            updateQuantityControls();
+            renderPrice();
+          });
+          grid.appendChild(button);
+        });
+      }
+      function updateQuantityControls() {
+        const maximum = selectedVehicle ? vehicleData[selectedVehicle].max : 1;
+        quantity = Math.max(1, Math.min(quantity, maximum));
+        document.getElementById("quantity").textContent = String(quantity);
+        document.getElementById("minusQuantity").disabled = quantity <= 1;
+        document.getElementById("plusQuantity").disabled = !selectedVehicle || quantity >= maximum;
+        document.getElementById("quantityHint").textContent = selectedVehicle === "scooter" ? "機車可選 1–4 台" : (selectedVehicle ? "汽車限選 1 台" : "機車 1–4 台；汽車 1 台");
+      }
+      function renderPrice() {
+        const list = document.getElementById("priceLines");
+        list.replaceChildren();
+        const item = vehicleData[selectedVehicle];
+        if (!item) {
+          document.getElementById("pricePlan").textContent = duration + " 天 " + (duration - 1) + " 夜";
+          document.getElementById("totalPrice").textContent = "NT$ —";
+          const li = document.createElement("li");
+          li.textContent = "請選擇車款以查看優惠價格";
+          list.appendChild(li);
+          currentTotal = 0;
+          return;
+        }
+        const promo = selectedPromo() * quantity;
+        const listPrice = item.daily * duration * quantity;
+        const discount = selectedVehicle !== "scooter" && isWeekdayStart() ? 200 : 0;
+        currentTotal = Math.max(0, promo - discount);
+        document.getElementById("pricePlan").textContent = duration + " 天 " + (duration - 1) + " 夜 · " + quantity + " " + (selectedVehicle === "scooter" ? "台" : "台");
+        const rows = [
+          ["車款優惠價", money(promo), ""],
+          ["牌價參考", money(listPrice), ""]
+        ];
+        if (discount) rows.push(["汽車平日出發優惠", "− " + money(discount), "discount"]);
+        rows.forEach(function (row) {
+          const li = document.createElement("li");
+          if (row[2]) li.className = row[2];
+          const label = document.createElement("span");
+          label.textContent = row[0];
+          const value = document.createElement("span");
+          value.textContent = row[1];
+          li.append(label, value);
+          list.appendChild(li);
+        });
+        document.getElementById("totalPrice").textContent = money(currentTotal);
+      }
+      function validateSelection() {
+        if (!selectedStart || !isAllowedStart(localDate(selectedStart), duration)) {
+          alert("請選擇可用的起租日期。");
+          return false;
+        }
+        if (!selectedLocation) {
+          alert("請選擇取車地點。");
+          return false;
+        }
+        if (!selectedVehicle) {
+          alert("請選擇車款。");
+          return false;
+        }
+        if (!document.getElementById("people").value) {
+          alert("請選擇同行人數。");
+          document.getElementById("people").focus();
+          return false;
+        }
+        return true;
+      }
+      function escapeHtml(value) {
+        return String(value).replace(/[&<>"']/g, function (char) {
+          return { "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;", "'": "&#39;" }[char];
+        });
+      }
+      function bookingDetails() {
+        const item = vehicleData[selectedVehicle];
+        const start = localDate(selectedStart);
+        const end = addDays(start, duration - 1);
+        const discount = selectedVehicle !== "scooter" && isWeekdayStart() ? 200 : 0;
+        const locationNames = { jincheng: "金城總店", airport: "尚義機場", jinhu: "金湖店" };
+        const shuttleNeeds = [];
+        if (selectedLocation === "jincheng" && document.getElementById("pickupShuttle").checked) shuttleNeeds.push("取車需要碼頭接送");
+        return {
+          duration: duration + " 天 " + (duration - 1) + " 夜",
+          dates: formatDate(start, true) + " – " + formatDate(end, true),
+          location: locationNames[selectedLocation],
+          shuttleText: selectedLocation === "jincheng" ? (shuttleNeeds.length ? shuttleNeeds.join("、") + "（接駁費用按人數另計）" : "不需要") : "不適用（選擇其他取車地點）",
+          vehicle: item.name,
+          quantity: quantity + " 台",
+          people: document.getElementById("people").value + " 人",
+          promo: selectedPromo() * quantity,
+          discount: discount,
+          total: currentTotal
+        };
+      }
+      function setPaymentStatus(text, state) {
+        const box = document.getElementById("paymentStatus");
+        box.textContent = text;
+        box.dataset.state = state || "";
+      }
+      function paymentPayload() {
+        return {
+          duration: duration,
+          startDate: selectedStart,
+          location: selectedLocation,
+          pickupShuttle: selectedLocation === "jincheng" && document.getElementById("pickupShuttle").checked,
+          vehicle: selectedVehicle,
+          quantity: quantity,
+          people: Number(document.getElementById("people").value),
+          contact: {
+            name: document.getElementById("customerName").value.trim(),
+            phone: document.getElementById("customerPhone").value.trim(),
+            email: document.getElementById("customerEmail").value.trim()
+          },
+          termsAccepted: document.getElementById("agreeTerms").checked
+        };
+      }
+      async function startPayment() {
+        if (paymentBusy) return;
+        if (!document.getElementById("agreeTerms").checked) {
+          alert("請先確認並勾選注意事項。");
+          setStage(2);
+          return;
+        }
+        paymentBusy = true;
+        const button = document.getElementById("payNow");
+        button.disabled = true;
+        setPaymentStatus("正在建立安全付款訂單…");
+        try {
+          const response = await fetch(paymentApi + "/create.php", {
+            method: "POST",
+            credentials: "same-origin",
+            headers: { "Content-Type": "application/json", "Accept": "application/json" },
+            body: JSON.stringify(paymentPayload())
+          });
+          const data = await response.json();
+          if (!response.ok || !data.checkoutUrl || !Number.isFinite(Number(data.amount))) {
+            throw new Error(data.message || "付款服務尚未完成設定，請稍後再試或聯絡客服。");
+          }
+          if (Number(data.amount) !== Number(currentTotal)) {
+            throw new Error("伺服器計算金額與畫面不同，為避免金額錯誤，暫停付款。請重新整理後再試。");
+          }
+          window.location.assign(data.checkoutUrl);
+        } catch (error) {
+          setPaymentStatus(error.message || "目前無法連線至付款服務，請稍後再試。", "error");
+          button.disabled = false;
+          paymentBusy = false;
+        }
+      }
+      async function checkPaymentReturn() {
+        const params = new URLSearchParams(window.location.search);
+        const token = params.get("booking_return");
+        if (!token) return;
+        dialog.classList.add("is-open");
+        dialog.setAttribute("aria-hidden", "false");
+        document.body.classList.add("booking-modal-open");
+        setStage(3);
+        document.getElementById("payNow").disabled = true;
+        setPaymentStatus("正在向伺服器確認信用卡付款狀態…");
+        function clearReturnToken() {
+          params.delete("booking_return");
+          const cleanUrl = window.location.pathname + (params.toString() ? "?" + params.toString() : "") + window.location.hash;
+          window.history.replaceState({}, "", cleanUrl);
+        }
+        for (let attempt = 0; attempt < 20; attempt++) {
+          try {
+            const response = await fetch(paymentApi + "/status.php?token=" + encodeURIComponent(token), {
+              credentials: "same-origin", cache: "no-store", headers: { "Accept": "application/json" }
+            });
+            const data = await response.json();
+            if (!response.ok) throw new Error(data.message || "無法查詢付款狀態。");
+            if (data.status === "paid" && data.booking) {
+              paidBooking = data.booking;
+              currentTotal = Number(paidBooking.total);
+              document.getElementById("paymentAmount").textContent = money(currentTotal);
+              setPaymentStatus("信用卡付款已確認，請確認預約資料後前往 LINE。", "success");
+              clearReturnToken();
+              buildReview();
+              setStage(4);
+              return;
+            }
+            if (data.status === "failed" || data.status === "cancelled") {
+              setPaymentStatus("尚未完成付款。你可以返回確認資料後重新付款。", "error");
+              document.getElementById("payNow").disabled = false;
+              clearReturnToken();
+              return;
+            }
+          } catch (error) {
+            setPaymentStatus("付款結果確認中；請勿重複付款，稍候再查看。", "error");
+          }
+          await new Promise(function (resolve) { window.setTimeout(resolve, 1500); });
+        }
+        setPaymentStatus("付款結果仍在確認中。LINE 訂單尚未開放；請重新整理本頁繼續查詢，請勿重複付款。", "error");
+      }
+      function buildReview() {
+        if (!paidBooking) return;
+        const details = paidBooking;
+        const name = details.name;
+        const phone = details.phone;
+        const email = details.email || "未填寫";
+        const rows = [
+          ["姓名", name], ["聯絡電話", phone], ["Email", email],
+          ["用車天數", details.duration], ["用車期間", details.dates],
+          ["取車地點", details.location], ["碼頭接送需求", details.shuttleText],
+          ["車款與方案", details.vehicle + " · " + details.duration],
+          ["訂購數量", details.quantity], ["同行人數", details.people]
+        ];
+        document.getElementById("reviewList").innerHTML = rows.map(function (row) {
+          return '<li><span class="key">' + escapeHtml(row[0]) + '</span><span class="value">' + escapeHtml(row[1]) + "</span></li>";
+        }).join("");
+        document.getElementById("reviewPrice").textContent = money(details.total);
+        currentMessage = [
+          "【2026冬遊金門超值方案預約】",
+          "姓名：" + name,
+          "聯絡電話：" + phone,
+          "Email：" + email,
+          "用車天數：" + details.duration,
+          "用車期間：" + details.dates,
+          "取車地點：" + details.location,
+          "碼頭接送：" + details.shuttleText,
+          "提醒：水頭碼頭接送請選擇金城總店，接駁費用按人數另計。",
+          "車款：" + details.vehicle,
+          "訂購數量：" + details.quantity,
+          "同行人數：" + details.people,
+          "車款優惠價：" + money(details.promo),
+          details.discount ? "汽車平日出發折扣：− " + money(details.discount) : "",
+          "優惠總額：" + money(details.total),
+          "綠界付款訂單編號：" + details.merchantTradeNo,
+          "已完成信用卡付款，請協助確認車輛庫存與預約。"
+        ].filter(Boolean).join("\n");
+      }
+      function buildLineUrl() {
+        return "https://line.me/R/oaMessage/%40kmfun/?" + encodeURIComponent(currentMessage);
+      }
+      function renderLineQr() {
+        const box = document.getElementById("lineQr");
+        const fallback = document.getElementById("lineQrFallback");
+        box.replaceChildren();
+        box.hidden = false;
+        fallback.hidden = true;
+        if (typeof QRCode === "undefined") {
+          box.hidden = true;
+          fallback.hidden = false;
+          return;
+        }
+        try {
+          new QRCode(box, {
+            text: buildLineUrl(),
+            width: 220,
+            height: 220,
+            correctLevel: QRCode.CorrectLevel.L
+          });
+        } catch (error) {
+          box.hidden = true;
+          fallback.hidden = false;
+        }
+      }
+
+      document.querySelectorAll('input[name="duration"]').forEach(function (input) {
+        input.addEventListener("change", function () {
+          duration = Number(input.value);
+          if (selectedStart && !isAllowedStart(localDate(selectedStart), duration)) selectedStart = "";
+          renderCalendar();
+          renderVehicles();
+          renderPrice();
+        });
+      });
+      document.querySelectorAll('input[name="pickupLocation"]').forEach(function (input) {
+        input.addEventListener("change", function () {
+          selectedLocation = input.value;
+          const shuttleOptions = document.getElementById("shuttleOptions");
+          const showShuttleOptions = selectedLocation === "jincheng";
+          shuttleOptions.hidden = !showShuttleOptions;
+          if (!showShuttleOptions) {
+            document.getElementById("pickupShuttle").checked = false;
+          }
+        });
+      });
+      document.getElementById("previousMonth").addEventListener("click", function () {
+        activeMonth = new Date(activeMonth.getFullYear(), activeMonth.getMonth() - 1, 1);
+        renderCalendar();
+      });
+      document.getElementById("nextMonth").addEventListener("click", function () {
+        activeMonth = new Date(activeMonth.getFullYear(), activeMonth.getMonth() + 1, 1);
+        renderCalendar();
+      });
+      document.getElementById("minusQuantity").addEventListener("click", function () {
+        quantity = Math.max(1, quantity - 1);
+        updateQuantityControls();
+        renderPrice();
+      });
+      document.getElementById("plusQuantity").addEventListener("click", function () {
+        const maximum = selectedVehicle ? vehicleData[selectedVehicle].max : 1;
+        quantity = Math.min(maximum, quantity + 1);
+        updateQuantityControls();
+        renderPrice();
+      });
+      document.getElementById("openBooking").addEventListener("click", function () {
+        dialog.classList.add("is-open");
+        dialog.setAttribute("aria-hidden", "false");
+        document.body.classList.add("booking-modal-open");
+        setStage(0);
+        document.getElementById("closeBooking").focus();
+      });
+      document.getElementById("closeBooking").addEventListener("click", closeBookingDialog);
+      dialog.addEventListener("click", function (event) {
+        if (event.target === dialog) closeBookingDialog();
+      });
+      document.addEventListener("keydown", function (event) {
+        if (dialog.classList.contains("is-open") && event.key === "Escape") closeBookingDialog();
+      });
+      document.getElementById("toContact").addEventListener("click", function () {
+        if (validateSelection()) setStage(1);
+      });
+      document.querySelectorAll("[data-back]").forEach(function (button) {
+        button.addEventListener("click", function () { setStage(Number(button.getAttribute("data-back"))); });
+      });
+      document.getElementById("toTerms").addEventListener("click", function () {
+        const name = document.getElementById("customerName");
+        const phone = document.getElementById("customerPhone");
+        const email = document.getElementById("customerEmail");
+        if (!name.reportValidity()) return;
+        if (!phone.reportValidity()) return;
+        if (email.value && !email.reportValidity()) return;
+        setStage(2);
+      });
+      document.getElementById("toPayment").addEventListener("click", function () {
+        if (!document.getElementById("agreeTerms").checked) {
+          alert("請先確認並勾選注意事項。");
+          return;
+        }
+        document.getElementById("paymentAmount").textContent = money(currentTotal);
+        setPaymentStatus("請確認金額後前往綠界付款。");
+        setStage(3);
+      });
+      document.getElementById("payNow").addEventListener("click", startPayment);
+      document.getElementById("sendLine").addEventListener("click", function () {
+        if (!paidBooking) {
+          alert("尚未收到伺服器確認的付款成功結果，無法傳送訂單資料。");
+          return;
+        }
+        const isMobile = /Android|iPhone|iPad|iPod/i.test(navigator.userAgent) ||
+          (navigator.platform === "MacIntel" && navigator.maxTouchPoints > 1);
+        if (isMobile) {
+          window.location.href = buildLineUrl();
+        } else {
+          document.getElementById("lineMessage").value = currentMessage;
+          setStage(4);
+          renderLineQr();
+        }
+      });
+      document.getElementById("copyMessage").addEventListener("click", async function () {
+        const message = document.getElementById("lineMessage").value;
+        try {
+          await navigator.clipboard.writeText(message);
+          alert("預約內容已複製，請貼到 LINE 官方帳號對話中傳送。");
+        } catch (error) {
+          const area = document.getElementById("lineMessage");
+          area.focus();
+          area.select();
+          document.execCommand("copy");
+          alert("已選取預約內容，請複製後貼到 LINE 官方帳號對話中傳送。");
+        }
+      });
+      document.getElementById("finishBooking").addEventListener("click", closeBookingDialog);
+
+      renderCalendar();
+      renderVehicles();
+      updateQuantityControls();
+      renderPrice();
+      checkPaymentReturn();
+      }
+      if (document.readyState === "loading") {
+        document.addEventListener("DOMContentLoaded", initBooking, { once: true });
+      } else {
+        initBooking();
+      }
+    }());
+  </script>
+</body>
+</html>
