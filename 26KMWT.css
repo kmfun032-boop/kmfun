@@ -1,0 +1,444 @@
+.shuttle-flow {
+  --sf-primary: #1677B8;
+  --sf-primary-dark: #105C91;
+  --sf-pale: #EAF5FC;
+  --sf-line: #C8DFEF;
+  --sf-text: #293746;
+  --sf-muted: #687785;
+  --sf-card: #FFFFFF;
+  --sf-branch-gap: 28px;
+
+  background: #F5F9FC;
+  color: var(--sf-text);
+}
+
+.shuttle-flow .sf-reveal {
+  opacity: 0;
+  transform: translateY(22px);
+  transition: opacity 0.65s ease, transform 0.65s ease;
+}
+
+.shuttle-flow .sf-reveal.is-visible {
+  opacity: 1;
+  transform: translateY(0);
+}
+
+/* 橘色強調分支 */
+.shuttle-flow .sf-branch-card:first-child .sf-step {
+  color: #E87516;
+}
+
+.shuttle-flow .sf-branch-card:first-child .sf-icon {
+  color: #E87516;
+  background: #FFF1E4;
+}
+
+/* 黃色只作小面積點綴 */
+.shuttle-flow .sf-eyebrow {
+  color: #1677B8;
+}
+
+.shuttle-flow .sf-status::before {
+  content: "";
+  display: inline-block;
+  width: 8px;
+  height: 8px;
+  margin-right: 8px;
+  border-radius: 50%;
+  background: #FFC928;
+}
+
+.shuttle-flow *,
+.shuttle-flow *::before,
+.shuttle-flow *::after {
+  box-sizing: border-box;
+}
+
+.sf-eyebrow,
+.sf-step {
+  display: block;
+  color: var(--sf-primary);
+  font-size: .78rem;
+  font-weight: 750;
+  letter-spacing: .12em;
+}
+
+.sf-title {
+  font-size: clamp(1.8rem, 4vw, 2.6rem);
+  font-weight: 750;
+  line-height: 1.25;
+}
+
+.sf-subtitle {
+  color: var(--sf-muted);
+  line-height: 1.8;
+}
+
+.sf-stage {
+  display: flex;
+  justify-content: center;
+  position: relative;
+  z-index: 1;
+}
+
+.sf-card {
+  min-width: 0;
+  border: 1px solid #e1e9e3;
+  border-radius: 16px;
+  background: var(--sf-card);
+  box-shadow: 0 8px 28px rgb(35 65 45 / 5%);
+}
+
+.sf-main-card {
+  width: min(100%, 370px);
+  padding: 27px 25px;
+  text-align: center;
+}
+
+.sf-icon {
+  display: grid;
+  place-items: center;
+  width: 64px;
+  height: 64px;
+  margin: 0 auto 15px;
+  border-radius: 18px;
+  background: var(--sf-pale);
+  color: var(--sf-primary);
+}
+
+.sf-icon svg {
+  display: block;
+  width: 42px;
+  height: 42px;
+}
+
+.sf-main-card h3,
+.sf-branch-card h3 {
+  margin: 8px 0 10px;
+  font-size: 1.25rem;
+  font-weight: 750;
+  line-height: 1.5;
+}
+
+.sf-main-card > p {
+  margin: 0;
+  color: var(--sf-muted);
+  font-size: .95rem;
+  line-height: 1.8;
+}
+
+/* Split: one input, two output branches */
+.sf-split-connector {
+  position: relative;
+  width: min(100%, 760px);
+  height: 64px;
+  margin: 0 auto;
+}
+
+.sf-split-connector::before {
+  content: "";
+  position: absolute;
+  top: 0;
+  left: 50%;
+  width: 3px;
+  height: 32px;
+  background: var(--sf-line);
+  transform: translateX(-50%);
+}
+
+.sf-split-connector::after {
+  content: "";
+  position: absolute;
+  top: 30px;
+  right: calc(25% - (var(--sf-branch-gap) / 4));
+  left: calc(25% - (var(--sf-branch-gap) / 4));
+  height: 3px;
+  background: var(--sf-line);
+}
+
+.sf-split-connector span {
+  position: absolute;
+  top: 30px;
+  left: 50%;
+  z-index: 1;
+  width: 3px;
+  height: 0px;
+  background: var(--sf-line);
+  transform: translateX(-50%);
+}
+
+/* Branch cards */
+.sf-branches {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: var(--sf-branch-gap);
+  max-width: 760px;
+  margin: 0 auto;
+  position: relative;
+}
+
+.sf-branch-card {
+  position: relative;
+  padding: 25px;
+}
+
+/* Connect horizontal branch to each card */
+.sf-branch-card::before {
+  content: "";
+  position: absolute;
+  top: -34px;
+  left: 50%;
+  width: 3px;
+  height: 34px;
+  background: var(--sf-line);
+  transform: translateX(-50%);
+}
+
+.sf-branch-heading {
+  display: flex;
+  align-items: center;
+  gap: 14px;
+  margin-bottom: 12px;
+}
+
+.sf-branch-heading .sf-icon {
+  flex: 0 0 54px;
+  width: 54px;
+  height: 54px;
+  margin: 0;
+  border-radius: 14px;
+}
+
+.sf-branch-heading .sf-icon svg {
+  width: 34px;
+  height: 34px;
+}
+
+.sf-branch-heading h3 {
+  margin: 4px 0 0;
+}
+
+.sf-branch-intro {
+  min-height: 54px;
+  margin: 0 0 20px;
+  color: var(--sf-muted);
+  font-size: .92rem;
+  line-height: 1.8;
+}
+
+.sf-detail {
+  display: flex;
+  align-items: flex-start;
+  gap: 12px;
+  padding: 16px 0;
+  border-top: 1px solid #edf1ee;
+}
+
+.sf-detail-icon {
+  display: grid;
+  flex: 0 0 36px;
+  place-items: center;
+  width: 36px;
+  height: 36px;
+  border-radius: 10px;
+  background: var(--sf-pale);
+  color: var(--sf-primary);
+}
+
+.sf-detail-icon svg {
+  width: 23px;
+  height: 23px;
+}
+
+.sf-detail h4 {
+  margin: 0 0 5px;
+  font-size: .98rem;
+  font-weight: 700;
+}
+
+.sf-detail p {
+  margin: 0;
+  color: var(--sf-muted);
+  font-size: .9rem;
+  line-height: 1.75;
+}
+
+/* Merge both branches into one main flow */
+.sf-merge-connector {
+  position: relative;
+  width: min(100%, 760px);
+  height: 68px;
+  margin: 0 auto;
+}
+
+.sf-merge-connector::before {
+  content: "";
+  position: absolute;
+  top: 0;
+  right: calc(25% - (var(--sf-branch-gap) / 4));
+  left: calc(25% - (var(--sf-branch-gap) / 4));
+  height: 3px;
+  background: var(--sf-line);
+}
+
+.sf-merge-connector::after {
+  content: "";
+  position: absolute;
+  top: 0;
+  left: 50%;
+  width: 3px;
+  height: 68px;
+  background: var(--sf-line);
+  transform: translateX(-50%);
+}
+
+.sf-merge-connector span {
+  position: absolute;
+  top: 0;
+  left: 50%;
+  z-index: 1;
+  width: 3px;
+  height: 68px;
+  background: var(--sf-line);
+  transform: translateX(-50%);
+}
+
+.sf-single-connector {
+  width: 3px;
+  height: 42px;
+  margin: 0 auto;
+  background: var(--sf-line);
+  position: relative;
+}
+
+.sf-single-connector::after {
+  content: "";
+  position: absolute;
+  inset: 0;
+  background: var(--sf-primary);
+  transform: scaleY(0);
+  transform-origin: top;
+  transition: transform .6s ease;
+}
+
+.sf-single-connector.is-active::after {
+  transform: scaleY(1);
+}
+
+.sf-status {
+  color: var(--sf-muted);
+  font-size: .9rem;
+  line-height: 1.8;
+}
+
+.sf-reveal:focus-within {
+  outline: 2px solid var(--sf-primary);
+  outline-offset: 4px;
+}
+
+/* Mobile: stack branches into a single column */
+@media (max-width: 575.98px) {
+  .sf-main-card {
+    padding: 23px 19px;
+  }
+
+  .sf-icon {
+    width: 56px;
+    height: 56px;
+    border-radius: 15px;
+  }
+
+  .sf-icon svg {
+    width: 36px;
+    height: 36px;
+  }
+
+  .sf-split-connector {
+    height: 36px;
+  }
+
+  .sf-split-connector::before {
+    height: 18px;
+  }
+
+  .sf-split-connector::after {
+    display: block;
+    top: 16px;
+    right: 50%;
+    left: 0;
+    height: 3px;
+  }
+
+  .sf-split-connector span {
+    display: block;
+    top: 16px;
+    left: 0;
+    height: 20px;
+    transform: none;
+  }
+
+  .sf-branches {
+    grid-template-columns: minmax(0, 1fr);
+    gap: 22px;
+    padding-left: 16px;
+  }
+
+  .sf-branches::before {
+    content: "";
+    position: absolute;
+    top: 0;
+    bottom: 0;
+    left: 0;
+    width: 3px;
+    background: var(--sf-line);
+  }
+
+  .sf-branch-card {
+    padding: 21px 19px;
+  }
+
+  .sf-branch-card::before {
+    display: none;
+  }
+
+
+
+  .sf-merge-connector {
+    height: 40px;
+  }
+
+  .sf-merge-connector::before {
+    display: block;
+    top: 16px;
+    right: 50%;
+    left: 0;
+    height: 3px;
+  }
+
+  .sf-merge-connector::after {
+    top: 16px;
+    height: 24px;
+  }
+
+  .sf-merge-connector span {
+    top: 0;
+    left: 0;
+    height: 18px;
+    transform: none;
+  }
+
+  .sf-branch-intro {
+    min-height: 0;
+  }
+}
+
+/* Respect the visitor's system motion preference */
+@media (prefers-reduced-motion: reduce) {
+  .shuttle-flow *,
+  .shuttle-flow *::before,
+  .shuttle-flow *::after {
+    scroll-behavior: auto !important;
+    animation: none !important;
+    transition: none !important;
+  }
+}
